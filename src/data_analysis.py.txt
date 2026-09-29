@@ -1,0 +1,40 @@
+import pandas as pd
+from database_connection import create_connection
+
+
+connection = create_connection()
+
+query = """
+SELECT
+    m.machine_name,
+    SUM(p.planned_quantity) AS planned_quantity,
+    SUM(p.produced_quantity) AS produced_quantity,
+    SUM(p.downtime_hours) AS total_downtime
+FROM production_records p
+JOIN machines m
+    ON p.machine_id = m.machine_id
+GROUP BY m.machine_name
+"""
+
+data = pd.read_sql_query(query, connection)
+
+connection.close()
+
+
+data["production_efficiency"] = (
+    data["produced_quantity"]
+    / data["planned_quantity"]
+    * 100
+)
+
+print("Machine Performance Analysis")
+print(data)
+
+print("\nAverage Production Efficiency:")
+print(
+    round(
+        data["production_efficiency"].mean(),
+        2
+    ),
+    "%"
+)

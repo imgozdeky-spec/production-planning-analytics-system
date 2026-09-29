@@ -1,0 +1,50 @@
+INSERT INTO customers (customer_id, customer_name, industry) VALUES
+(1, 'Anadolu Automotive', 'Automotive'),
+(2, 'TeknoSavunma', 'Defense'),
+(3, 'Marmara Machinery', 'Machinery'),
+(4, 'Nova Energy', 'Energy');
+
+INSERT INTO machines (
+    machine_id,
+    machine_name,
+    machine_type,
+    capacity_per_hour,
+    status
+) VALUES
+(1, 'CNC-01', 'CNC', 12, 'Active'),
+(2, 'CNC-02', 'CNC', 10, 'Active'),
+(3, 'PRESS-01', 'Hydraulic Press', 8, 'Maintenance'),
+(4, 'LATHE-01', 'Lathe', 15, 'Active');
+
+INSERT INTO orders (
+    order_id,
+    customer_id,
+    product,
+    quantity,
+    order_date,
+    due_date,
+    priority
+) VALUES
+(1001, 1, 'Engine Component', 1200, '2026-09-01', '2026-10-05', 'High'),
+(1002, 2, 'Defense Housing', 800, '2026-09-03', '2026-10-10', 'Critical'),
+(1003, 3, 'Machine Shaft', 1500, '2026-09-05', '2026-10-15', 'Medium'),
+(1004, 4, 'Energy Component', 600, '2026-09-08', '2026-10-20', 'Low');
+
+INSERT INTO production_records (
+    record_id,
+    order_id,
+    machine_id,
+    production_date,
+    planned_quantity,
+    produced_quantity,
+    production_time_hours,
+    downtime_hours
+) VALUES
+(1, 1001, 1, '2026-09-15', 200, 190, 17.5, 1.5),
+(2, 1001, 2, '2026-09-16', 180, 175, 18.0, 2.0),
+(3, 1002, 1, '2026-09-16', 150, 145, 16.5, 3.5),
+(4, 1002, 3, '2026-09-17', 100, 82, 12.0, 5.0),
+(5, 1003, 4, '2026-09-18', 250, 245, 16.0, 1.0),
+(6, 1003, 2, '2026-09-19', 220, 205, 20.0, 2.5),
+(7, 1004, 1, '2026-09-20', 120, 118, 9.5, 0.5),
+(8, 1004, 4, '2026-09-21', 140, 136, 10.0, 1.0);

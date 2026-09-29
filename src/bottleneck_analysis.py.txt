@@ -1,0 +1,68 @@
+import pandas as pd
+from database_connection import create_connection
+
+
+connection = create_connection()
+
+query = """
+SELECT
+    m.machine_name,
+    SUM(p.planned_quantity) AS planned_quantity,
+    SUM(p.produced_quantity) AS produced_quantity,
+    SUM(p.production_time_hours) AS production_hours,
+    SUM(p.downtime_hours) AS downtime_hours
+FROM production_records p
+JOIN machines m
+    ON p.machine_id = m.machine_id
+GROUP BY m.machine_name
+"""
+
+data = pd.read_sql_query(query, connection)
+
+connection.close()
+
+
+data["efficiency"] = (
+    data["produced_quantity"]
+    / data["planned_quantity"]
+    * 100
+)
+
+data["utilization"] = (
+    data["production_hours"]
+    /
+    (
+        data["production_hours"]
+        + data["downtime_hours"]
+    )
+    * 100
+)
+
+data["efficiency"] = data["efficiency"].round(2)
+data["utilization"] = data["utilization"].round(2)
+
+data["bottleneck_score"] = (
+    (100 - data["efficiency"]) * 0.5
+    + (100 - data["utilization"]) * 0.5
+)
+
+data["bottleneck_score"] = data["bottleneck_score"].round(2)
+
+print("Machine Bottleneck Analysis")
+print(data)
+
+print("\nPotential Bottlenecks:")
+
+print(
+    data.sort_values(
+        "bottleneck_score",
+        ascending=False
+    )[
+        [
+            "machine_name",
+            "efficiency",
+            "utilization",
+            "bottleneck_score"
+        ]
+    ]
+)

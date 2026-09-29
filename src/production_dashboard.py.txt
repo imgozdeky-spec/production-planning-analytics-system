@@ -1,0 +1,80 @@
+import pandas as pd
+from database_connection import create_connection
+
+
+def load_production_data():
+    connection = create_connection()
+
+    query = """
+    SELECT
+        o.order_id,
+        o.product,
+        o.priority,
+        m.machine_name,
+        p.planned_quantity,
+        p.produced_quantity,
+        p.production_time_hours,
+        p.downtime_hours
+    FROM production_records p
+    JOIN orders o
+        ON p.order_id = o.order_id
+    JOIN machines m
+        ON p.machine_id = m.machine_id
+    """
+
+    data = pd.read_sql_query(query, connection)
+
+    connection.close()
+
+    return data
+
+
+def calculate_metrics(data):
+    data["production_efficiency"] = (
+        data["produced_quantity"]
+        / data["planned_quantity"]
+        * 100
+    )
+
+    data["production_efficiency"] = (
+        data["production_efficiency"].round(2)
+    )
+
+    return data
+
+
+if __name__ == "__main__":
+
+    production_data = load_production_data()
+
+    production_data = calculate_metrics(
+        production_data
+    )
+
+    print("Production Dashboard Data")
+    print("--------------------------")
+    print(production_data)
+
+    print("\nAverage Production Efficiency:")
+
+    print(
+        round(
+            production_data[
+                "production_efficiency"
+            ].mean(),
+            2
+        ),
+        "%"
+    )
+
+    print("\nTotal Downtime:")
+
+    print(
+        round(
+            production_data[
+                "downtime_hours"
+            ].sum(),
+            2
+        ),
+        "hours"
+    )

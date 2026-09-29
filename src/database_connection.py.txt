@@ -1,0 +1,19 @@
+import sqlite3
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE_PATH = BASE_DIR / "database" / "production.db"
+
+
+def create_connection():
+    connection = sqlite3.connect(DATABASE_PATH)
+    return connection
+
+
+if __name__ == "__main__":
+    connection = create_connection()
+
+    print("Database connection successful.")
+
+    connection.close()

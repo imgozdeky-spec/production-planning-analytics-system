@@ -1,0 +1,54 @@
+import pandas as pd
+from database_connection import create_connection
+
+
+connection = create_connection()
+
+query = """
+SELECT
+    o.order_id,
+    c.customer_name,
+    o.product,
+    o.quantity AS ordered_quantity,
+    COALESCE(SUM(p.produced_quantity), 0) AS produced_quantity,
+    o.quantity - COALESCE(SUM(p.produced_quantity), 0)
+        AS remaining_quantity,
+    o.priority,
+    o.due_date
+FROM orders o
+JOIN customers c
+    ON o.customer_id = c.customer_id
+LEFT JOIN production_records p
+    ON o.order_id = p.order_id
+GROUP BY
+    o.order_id,
+    c.customer_name,
+    o.product,
+    o.quantity,
+    o.priority,
+    o.due_date
+"""
+
+orders = pd.read_sql_query(query, connection)
+
+connection.close()
+
+
+orders["completion_rate"] = (
+    orders["produced_quantity"]
+    / orders["ordered_quantity"]
+    * 100
+)
+
+orders["completion_rate"] = orders["completion_rate"].round(2)
+
+print("Order Analysis")
+print(orders)
+
+print("\nOrders With Highest Remaining Quantity:")
+print(
+    orders.sort_values(
+        "remaining_quantity",
+        ascending=False
+    ).head()
+)

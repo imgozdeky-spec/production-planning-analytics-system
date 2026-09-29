@@ -1,0 +1,71 @@
+-- 1. Order and customer overview
+
+SELECT
+    o.order_id,
+    c.customer_name,
+    o.product,
+    o.quantity,
+    o.due_date,
+    o.priority
+FROM orders o
+JOIN customers c
+    ON o.customer_id = c.customer_id;
+
+
+-- 2. Machine production performance
+
+SELECT
+    m.machine_name,
+    SUM(p.planned_quantity) AS planned_quantity,
+    SUM(p.produced_quantity) AS produced_quantity,
+    SUM(p.downtime_hours) AS total_downtime
+FROM production_records p
+JOIN machines m
+    ON p.machine_id = m.machine_id
+GROUP BY m.machine_name;
+
+
+-- 3. Production efficiency
+
+SELECT
+    m.machine_name,
+    ROUND(
+        SUM(p.produced_quantity) * 100.0
+        / SUM(p.planned_quantity),
+        2
+    ) AS production_efficiency
+FROM production_records p
+JOIN machines m
+    ON p.machine_id = m.machine_id
+GROUP BY m.machine_name;
+
+
+-- 4. Machine downtime analysis
+
+SELECT
+    m.machine_name,
+    SUM(p.downtime_hours) AS total_downtime
+FROM production_records p
+JOIN machines m
+    ON p.machine_id = m.machine_id
+GROUP BY m.machine_name
+ORDER BY total_downtime DESC;
+
+
+-- 5. Order production status
+
+SELECT
+    o.order_id,
+    o.product,
+    o.quantity AS ordered_quantity,
+    COALESCE(SUM(p.produced_quantity), 0) AS produced_quantity,
+    o.quantity - COALESCE(SUM(p.produced_quantity), 0)
+        AS remaining_quantity
+FROM orders o
+LEFT JOIN production_records p
+    ON o.order_id = p.order_id
+GROUP BY
+    o.order_id,
+    o.product,
+    o.quantity
+ORDER BY remaining_quantity DESC;

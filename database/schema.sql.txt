@@ -1,0 +1,37 @@
+CREATE TABLE customers (
+    customer_id INTEGER PRIMARY KEY,
+    customer_name TEXT NOT NULL,
+    industry TEXT
+);
+
+CREATE TABLE machines (
+    machine_id INTEGER PRIMARY KEY,
+    machine_name TEXT NOT NULL,
+    machine_type TEXT,
+    capacity_per_hour REAL,
+    status TEXT
+);
+
+CREATE TABLE orders (
+    order_id INTEGER PRIMARY KEY,
+    customer_id INTEGER,
+    product TEXT NOT NULL,
+    quantity INTEGER,
+    order_date TEXT,
+    due_date TEXT,
+    priority TEXT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE TABLE production_records (
+    record_id INTEGER PRIMARY KEY,
+    order_id INTEGER,
+    machine_id INTEGER,
+    production_date TEXT,
+    planned_quantity INTEGER,
+    produced_quantity INTEGER,
+    production_time_hours REAL,
+    downtime_hours REAL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (machine_id) REFERENCES machines(machine_id)
+);
